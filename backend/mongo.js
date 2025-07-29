@@ -7,6 +7,7 @@ if (process.argv.length<3) {
 
 const password = process.argv[2]
 
+// DO NOT SAVE YOUR PASSWORD TO GITHUB!!
 const url =
   `mongodb+srv://fullstack:${password}@cluster0.ce2rqzs.mongodb.net/noteApp?retryWrites=true&w=majority`
 

@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const mongoose = require('mongoose')
 
 const app = express()
 
@@ -7,37 +8,36 @@ app.use(express.json())
 app.use(express.static('dist'))
 app.use(cors())
 
-let notes = [
-  {
-    id: 1,
-    content: "HTML is easy",
-    important: true
-  },
-  {
-    id: 2,
-    content: "Browser can execute only JavaScript",
-    important: false
-  },
-  {
-    id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
-    important: true
-  }
-]
+const password = process.argv[2]
+
+// DO NOT SAVE YOUR PASSWORD TO GITHUB!!
+const url =
+  `mongodb+srv://fullstack:${password}@cluster0.ce2rqzs.mongodb.net/noteApp?retryWrites=true&w=majority`
+
+mongoose.set('strictQuery',false)
+
+mongoose.connect(url)
+
+const noteSchema = new mongoose.Schema({
+  content: String,
+  important: Boolean,
+})
+
+const Note = mongoose.model('Note', noteSchema)
 
 const generateId = () => {
-  const maxId = notes.length > 0
+  Note.find({}).then(notes => {
+      const maxId = notes.length > 0
     ? Math.max(...notes.map(n => n.id))
     : 0
-  return maxId + 1
+    return maxId + 1
+  })
 }
 
-// app.get('/', (request, response) => {
-//   response.send('<h1>Hello World!</h1>')
-// })
-
 app.get('/api/notes', (request, response) => {
-  response.json(notes)
+  Note.find({}).then(notes => {
+    response.json(notes)
+  })
 })
 
 app.get('/api/notes/:id', (request, response) => {
