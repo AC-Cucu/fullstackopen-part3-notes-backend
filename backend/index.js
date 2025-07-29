@@ -26,6 +26,10 @@ app.get('/api/notes/:id', (request, response) => {
       response.status(404).end()
     }
   })
+  .catch(error => {
+    console.log(error)
+    response.status(400).send({ error: 'malformatted id' })
+  })  
 })
 
 app.delete('/api/notes/:id', (request, response) => {
@@ -44,7 +48,7 @@ app.delete('/api/notes/:id', (request, response) => {
     .catch(error => {
       console.error('Error deleting note:', error);
       response.status(500).end()
-    });  
+    });
 })
 
 app.post('/api/notes', (request, response) => {
