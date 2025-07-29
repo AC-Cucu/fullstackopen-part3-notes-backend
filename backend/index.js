@@ -9,17 +9,6 @@ app.use(express.json())
 app.use(express.static('dist'))
 app.use(cors())
 
-const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
-
-  if (error.name === 'CastError') {
-    return response.status(400).send({ error: 'malformatted id' })
-  } 
-
-  next(error)
-}
-
-
 app.get('/api/notes', (request, response) => {
   Note.find({}).then(notes => {
     response.json(notes)
@@ -76,6 +65,21 @@ app.post('/api/notes', (request, response) => {
   })
 })
 
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+// controlador de solicitudes con endpoint desconocido
+app.use(unknownEndpoint)
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformatted id' })
+  } 
+
+  next(error)
+}
 // este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
 app.use(errorHandler)
 
