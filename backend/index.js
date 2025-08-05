@@ -5,6 +5,9 @@ const cors = require('cors')
 const app = express()
 const Note = require('./models/note')
 
+const logger = require('./utils/logger')
+const config = require('./utils/config')
+
 app.use(express.json())
 app.use(express.static('dist'))
 app.use(cors())
@@ -34,15 +37,15 @@ app.delete('/api/notes/:id', (request, response) => {
   Note.findByIdAndDelete(id)
     .then(result => {
       if (result.content) {
-        console.log('Note deleted successfully');
+        logger.info('Note deleted successfully');
         response.status(204).end()
       } else {
-        console.log('Note not found');
+        logger.info('Note not found');
         response.status(404).end()
       }
     })
     .catch(error => {
-      console.error('Error deleting note:', error);
+      logger.error('Error deleting note:', error);
       response.status(500).end()
     });
 })
@@ -60,7 +63,7 @@ app.post('/api/notes', (request, response) => {
   })
 
   note.save().then(savedNote => {
-    console.log('Note created successfully');
+    logger.info('Note created successfully');
     response.json(savedNote)
   })
 })
@@ -87,7 +90,7 @@ const unknownEndpoint = (request, response) => {
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message)
+  logger.error(error.message)
 
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformatted id' })
@@ -98,7 +101,7 @@ const errorHandler = (error, request, response, next) => {
 // este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 3001
+const PORT = config.PORT || 3001
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+  logger.info(`Server running on port ${PORT}`)
 })
